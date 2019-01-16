@@ -8,8 +8,7 @@
 
 
 const TGAColor white = TGAColor(255, 255, 255, 255);
-const TGAColor red   = TGAColor(255, 0,   0,   255);
-const TGAColor green = TGAColor(0,   255, 0,   255);
+const TGAColor random = TGAColor(rand()%255, rand()%255, rand()%255, 255);
 
 void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color){
     bool steep = false;
@@ -54,40 +53,29 @@ std::vector<std::string> split(const std::string &chaine, char delimiteur)
 }
 
 void triangle(Vecteur2D  v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TGAColor color){
-    line(v1.x, v1.y, v2.x, v2.y,image, white);
-    line(v2.x, v2.y, v3.x, v3.y, image, white);
-    line(v1.x, v1.y, v3.x, v3.y, image, white);
-}
+    color = random;
+    line(v1.x, v1.y, v2.x, v2.y, image, color);
+    line(v2.x, v2.y, v3.x, v3.y, image, color);
+    line(v1.x, v1.y, v3.x, v3.y, image, color);
 
-
-
-
-
-
-
-
-
-
-
-/*void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image, TGAColor color) {
-    if (t0.y==t1.y && t0.y==t2.y) return; // i dont care about degenerate triangles
-    if (t0.y>t1.y) std::swap(t0, t1);
-    if (t0.y>t2.y) std::swap(t0, t2);
-    if (t1.y>t2.y) std::swap(t1, t2);
-    int total_height = t2.y-t0.y;
+    /*if (v1.y==v2.y && v1.y==v3.y) return; // i dont care about degenerate triangles
+    if (v1.y>v2.y) std::swap(v1, v2);
+    if (v1.y>v3.y) std::swap(v1, v3);
+    if (v2.y>v3.y) std::swap(v2, v3);
+    int total_height = v3.y-v1.y;
     for (int i=0; i<total_height; i++) {
-        bool second_half = i>t1.y-t0.y || t1.y==t0.y;
-        int segment_height = second_half ? t2.y-t1.y : t1.y-t0.y;
+        bool second_half = i>v2.y-v1.y || v2.y==v1.y;
+        int segment_height = second_half ? v3.y-v2.y : v2.y-v1.y;
         float alpha = (float)i/total_height;
-        float beta  = (float)(i-(second_half ? t1.y-t0.y : 0))/segment_height; // be careful: with above conditions no division by zero here
-        Vec2i A =               t0 + (t2-t0)*alpha;
-        Vec2i B = second_half ? t1 + (t2-t1)*beta : t0 + (t1-t0)*beta;
+        float beta  = (float)(i-(second_half ? v2.y-v1.y : 0))/segment_height; // be careful: with above conditions no division by zero here
+        Vecteur2D A =               v1 + (v3-v1)*alpha;
+        Vecteur2D B = second_half ? v2 + (v3-v2)*beta : v1 + (v2-v1)*beta;
         if (A.x>B.x) std::swap(A, B);
         for (int j=A.x; j<=B.x; j++) {
-            image.set(j, t0.y+i, color); // attention, due to int casts t0.y+i != A.y
+            image.set(j, v1.y+i, color); // attention, due to int casts t0.y+i != A.y
         }
-    }
-}*/
+    }*/
+}
 
 int main(int argc, char** argv) {
 
@@ -122,7 +110,7 @@ int main(int argc, char** argv) {
         }
         fichier.close();
 
-        //Pour déssiner les points
+        //Pour dessiner les points
         /*for (int i = 0; i < vertices.size(); ++i) {
             std::vector<std::string> listTableau = split(vertices[i], delimiter);
             float x = (atof(listTableau[0].c_str())+1.)*width/2.;
