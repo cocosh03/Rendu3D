@@ -108,7 +108,8 @@ int main(int argc, char** argv) {
         }
         fichier.close();
 
-        /*for (int i = 0; i < vertices.size(); ++i) { //Pour déssiner les points
+        //Pour déssiner les points
+        /*for (int i = 0; i < vertices.size(); ++i) {
             std::vector<std::string> listTableau = split(vertices[i], delimiter);
             float x = (atof(listTableau[0].c_str())+1.)*width/2.;
             float y = (atof(listTableau[1].c_str())+1.)*height/2.;
