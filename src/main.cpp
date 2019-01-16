@@ -53,7 +53,23 @@ std::vector<std::string> split(const std::string &chaine, char delimiteur)
     return elements;
 }
 
-void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image, TGAColor color) {
+void triangle(Vecteur2D  v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TGAColor color){
+    line(v1.x, v1.y, v2.x, v2.y,image, white);
+    line(v2.x, v2.y, v3.x, v3.y, image, white);
+    line(v1.x, v1.y, v3.x, v3.y, image, white);
+}
+
+
+
+
+
+
+
+
+
+
+
+/*void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image, TGAColor color) {
     if (t0.y==t1.y && t0.y==t2.y) return; // i dont care about degenerate triangles
     if (t0.y>t1.y) std::swap(t0, t1);
     if (t0.y>t2.y) std::swap(t0, t2);
@@ -71,14 +87,13 @@ void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image, TGAColor color) {
             image.set(j, t0.y+i, color); // attention, due to int casts t0.y+i != A.y
         }
     }
-}
+}*/
 
 int main(int argc, char** argv) {
+
     int width = 800;
     int height = 800;
     TGAImage image(width, height, TGAImage::RGB);
-
-
 
     std::ifstream fichier("../obj/african_head.obj");
     if (fichier) {
@@ -86,7 +101,6 @@ int main(int argc, char** argv) {
         std::string ligne;
         std::vector<std::string> vertices;
         std::vector<std::string> edges;
-
 
         while (getline(fichier, ligne)) {
             std::vector<std::string> listLignes = split(ligne, delimiter);
@@ -120,28 +134,28 @@ int main(int argc, char** argv) {
 
             std::vector<std::string> listArc = split(edges[i], delimiter);
 
+            Vecteur2D v1{}, v2{}, v3{};
+
             int point1 = (atoi(listArc[0].c_str()) - 1.);
             int point2 = (atoi(listArc[1].c_str()) - 1.);
             int point3 = (atoi(listArc[2].c_str()) - 1.);
 
             std::vector<std::string> coordonnees1 = split(vertices[point1], delimiter);
-            float x1 = (atof(coordonnees1[0].c_str()) + 1.) * width / 2.;
-            float y1 = (atof(coordonnees1[1].c_str()) + 1.) * height / 2.;
+            v1.x = (atof(coordonnees1[0].c_str()) + 1.) * width / 2.;
+            v1.y = (atof(coordonnees1[1].c_str()) + 1.) * height / 2.;
 
             std::vector<std::string> coordonnees2 = split(vertices[point2], delimiter);
-            float x2 = (atof(coordonnees2[0].c_str())+1.)*width/2.;
-            float y2 = (atof(coordonnees2[1].c_str())+1.)*height/2.;
+            v2.x = (atof(coordonnees2[0].c_str())+1.)*width/2.;
+            v2.y = (atof(coordonnees2[1].c_str())+1.)*height/2.;
 
             std::vector<std::string> coordonnees3 = split(vertices[point3], delimiter);
-            float x3 = (atof(coordonnees3[0].c_str())+1.)*width/2.;
-            float y3 = (atof(coordonnees3[1].c_str())+1.)*height/2.;
+            v3.x = (atof(coordonnees3[0].c_str())+1.)*width/2.;
+            v3.y = (atof(coordonnees3[1].c_str())+1.)*height/2.;
 
-            line(x1, y1, x2, y2, image, white);
-            line(x1, y1, x3, y3, image, white);
-            line(x2, y2, x3, y3, image, white);
+            triangle(v1, v2, v3, image,white);
 
-            Vec2i t0[3] = {Vec2i(x1,y1),   Vec2i(x2,y2),  Vec2i(x3,y3)};
-            triangle(t0[0], t0[1], t0[2], image, red);
+            /*Vec2i t0[3] = {Vec2i(x1,y1),   Vec2i(x2,y2),  Vec2i(x3,y3)};
+            triangle(t0[0], t0[1], t0[2], image, red);*/
         }
     }
     else{

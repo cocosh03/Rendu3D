@@ -8,7 +8,7 @@
 #include <cmath>
 #include <ostream>
 
-template <class t> struct Vec2 {
+/*template <class t> struct Vec2 {
     union {
         struct {t u, v;};
         struct {t x, y;};
@@ -27,6 +27,10 @@ typedef Vec2<int>   Vec2i;
 template <class t> std::ostream& operator<<(std::ostream& s, Vec2<t>& v) {
     s << "(" << v.x << ", " << v.y << ")\n";
     return s;
-}
+}*/
+
+struct Vecteur2D{
+    float x, y;
+};
 
 #endif //RENDU3D_GEOMETRY_H
