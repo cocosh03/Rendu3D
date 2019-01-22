@@ -8,7 +8,7 @@
 
 
 const TGAColor white = TGAColor(255, 255, 255, 255);
-const TGAColor random = TGAColor(rand()%255, rand()%255, rand()%255, 255);
+//const TGAColor random = TGAColor(rand()%255, rand()%255, rand()%255, 255);
 
 void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color){
     bool steep = false;
@@ -52,11 +52,55 @@ std::vector<std::string> split(const std::string &chaine, char delimiteur)
     return elements;
 }
 
-void triangle(Vecteur2D  v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TGAColor color){
-    color = random;
+void fillBottomTriangle(Vecteur2D v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TGAColor color){
+    float invslope1 = (v2.x - v1.x) / (v2.y - v1.y);
+    float invslope2 = (v3.x - v1.x) / (v3.y - v1.y);
+
+    float curx1 = v1.x;
+    float curx2 = v1.x;
+
+    for (int scanlineY = v1.y; scanlineY <= v2.y; scanlineY++)
+    {
+        line((int)curx1, scanlineY, (int)curx2, scanlineY, image, color );
+        curx1 += invslope1;
+        curx2 += invslope2;
+    }
+}
+
+void fillTopFlatTriangle(Vecteur2D v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TGAColor color){
+    float invslope1 = (v3.x - v1.x) / (v3.y - v1.y);
+    float invslope2 = (v3.x - v2.x) / (v3.y - v2.y);
+
+    float curx1 = v3.x;
+    float curx2 = v3.x;
+
+    for (int scanlineY = v3.y; scanlineY > v1.y; scanlineY--)
+    {
+        line((int)curx1, scanlineY, (int)curx2, scanlineY, image, color );
+    curx1 -= invslope1;
+    curx2 -= invslope2;
+}
+}
+
+void triangle(Vecteur2D  v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TGAColor color) {
+    //color = random;
     line(v1.x, v1.y, v2.x, v2.y, image, color);
     line(v2.x, v2.y, v3.x, v3.y, image, color);
     line(v1.x, v1.y, v3.x, v3.y, image, color);
+
+    if (v2.y == v3.y) {
+        fillBottomTriangle(v1, v2, v3, image, color);
+    } else if (v1.y == v2.y) {
+        fillTopFlatTriangle(v1, v2, v3, image,color);
+    } else {
+        /* general case - split the triangle in a topflat and bottom-flat one */
+        Vecteur2D v4;
+        v4.x = ((int)(v1.x + ((float)(v2.y - v1.y) / (float)(v3.y - v1.y)) * (v3.x - v1.x)), v2.y);
+        v4.y = v2.y;
+        fillBottomTriangle(v1, v2, v4, image, color);
+        fillTopFlatTriangle(v2, v4, v3, image, color);
+    }
+}
 
     /*if (v1.y==v2.y && v1.y==v3.y) return; // i dont care about degenerate triangles
     if (v1.y>v2.y) std::swap(v1, v2);
@@ -75,10 +119,10 @@ void triangle(Vecteur2D  v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TGACol
             image.set(j, v1.y+i, color); // attention, due to int casts t0.y+i != A.y
         }
     }*/
-}
 
 int main(int argc, char** argv) {
 
+    TGAColor random = TGAColor(rand()%255, rand()%255, rand()%255, 255);
     int width = 800;
     int height = 800;
     TGAImage image(width, height, TGAImage::RGB);
@@ -133,30 +177,19 @@ int main(int argc, char** argv) {
             v1.y = (atof(coordonnees1[1].c_str()) + 1.) * height / 2.;
 
             std::vector<std::string> coordonnees2 = split(vertices[point2], delimiter);
-            v2.x = (atof(coordonnees2[0].c_str())+1.)*width/2.;
-            v2.y = (atof(coordonnees2[1].c_str())+1.)*height/2.;
+            v2.x = (atof(coordonnees2[0].c_str()) + 1.) * width / 2.;
+            v2.y = (atof(coordonnees2[1].c_str()) + 1.) * height / 2.;
 
             std::vector<std::string> coordonnees3 = split(vertices[point3], delimiter);
-            v3.x = (atof(coordonnees3[0].c_str())+1.)*width/2.;
-            v3.y = (atof(coordonnees3[1].c_str())+1.)*height/2.;
-
-            triangle(v1, v2, v3, image,white);
-
-            /*Vec2i t0[3] = {Vec2i(x1,y1),   Vec2i(x2,y2),  Vec2i(x3,y3)};
-            triangle(t0[0], t0[1], t0[2], image, red);*/
+            v3.x = (atof(coordonnees3[0].c_str()) + 1.) * width / 2.;
+            v3.y = (atof(coordonnees3[1].c_str()) + 1.) * height / 2.;
+            random = TGAColor(rand()%255, rand()%255, rand()%255, 255);
+            triangle(v1, v2, v3, image, random);
         }
     }
     else{
         std::cerr << "Erreur" << std::endl;
     }
-
-/*  Vec2i t0[3] = {Vec2i(10, 70),   Vec2i(50, 160),  Vec2i(70, 80)};
-    Vec2i t1[3] = {Vec2i(180, 50),  Vec2i(150, 1),   Vec2i(70, 180)};
-    Vec2i t2[3] = {Vec2i(180, 150), Vec2i(120, 160), Vec2i(130, 180)};
-
-    triangle(t0[0], t0[1], t0[2], image, red);
-    triangle(t1[0], t1[1], t1[2], image, white);
-    triangle(t2[0], t2[1], t2[2], image, green);*/
 
     image.flip_vertically(); // i want to have the origin at the left bottom corner of the image
     image.write_tga_file("output.tga");

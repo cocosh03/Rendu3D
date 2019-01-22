@@ -1,0 +1,34 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+D:/UNIVERSITE_2019/Rendu3D/src/geometry.h
+cmath
+-
+ostream
+-
+
+D:/UNIVERSITE_2019/Rendu3D/src/main.cpp
+tgaimage.h
+D:/UNIVERSITE_2019/Rendu3D/src/tgaimage.h
+geometry.h
+D:/UNIVERSITE_2019/Rendu3D/src/geometry.h
+cmath
+-
+fstream
+-
+iostream
+-
+vector
+-
+sstream
+-
+
+D:/UNIVERSITE_2019/Rendu3D/src/tgaimage.h
+fstream
+-
+
