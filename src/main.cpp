@@ -8,6 +8,7 @@
 
 
 const TGAColor white = TGAColor(255, 255, 255, 255);
+//const TGAColor rouge = TGAColor(255, 0, 0, 255);
 //const TGAColor random = TGAColor(rand()%255, rand()%255, rand()%255, 255);
 
 void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color){
@@ -53,6 +54,7 @@ std::vector<std::string> split(const std::string &chaine, char delimiteur)
 }
 
 void fillBottomTriangle(Vecteur2D v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TGAColor color){
+
     float invslope1 = (v2.x - v1.x) / (v2.y - v1.y);
     float invslope2 = (v3.x - v1.x) / (v3.y - v1.y);
 
@@ -61,29 +63,33 @@ void fillBottomTriangle(Vecteur2D v1, Vecteur2D v2, Vecteur2D v3, TGAImage &imag
 
     for (int scanlineY = v1.y; scanlineY <= v2.y; scanlineY++)
     {
-        line((int)curx1, scanlineY, (int)curx2, scanlineY, image, color );
+        line(curx1, scanlineY, curx2, scanlineY, image, color );
         curx1 += invslope1;
         curx2 += invslope2;
     }
 }
 
-void fillTopFlatTriangle(Vecteur2D v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TGAColor color){
+void fillTopTriangle(Vecteur2D v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TGAColor color){
+
     float invslope1 = (v3.x - v1.x) / (v3.y - v1.y);
     float invslope2 = (v3.x - v2.x) / (v3.y - v2.y);
 
     float curx1 = v3.x;
     float curx2 = v3.x;
 
-    for (int scanlineY = v3.y; scanlineY > v1.y; scanlineY--)
+    for (int scanlineY = v3.y; scanlineY > v2.y; scanlineY--)
     {
-        line((int)curx1, scanlineY, (int)curx2, scanlineY, image, color );
-    curx1 -= invslope1;
-    curx2 -= invslope2;
+        line(curx1, scanlineY, curx2, scanlineY, image, color );
+        curx1 -= invslope1;
+        curx2 -= invslope2;
 }
 }
 
 void triangle(Vecteur2D  v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TGAColor color) {
-    //color = random;
+    if (v1.y>v2.y) std::swap(v1, v2);
+    if (v1.y>v3.y) std::swap(v1, v3);
+    if (v2.y>v3.y) std::swap(v2, v3);
+    //v3.y > v2.y > v1.y
     line(v1.x, v1.y, v2.x, v2.y, image, color);
     line(v2.x, v2.y, v3.x, v3.y, image, color);
     line(v1.x, v1.y, v3.x, v3.y, image, color);
@@ -91,34 +97,15 @@ void triangle(Vecteur2D  v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TGACol
     if (v2.y == v3.y) {
         fillBottomTriangle(v1, v2, v3, image, color);
     } else if (v1.y == v2.y) {
-        fillTopFlatTriangle(v1, v2, v3, image,color);
+        fillTopTriangle(v1, v2, v3, image,color);
     } else {
-        /* general case - split the triangle in a topflat and bottom-flat one */
         Vecteur2D v4;
-        v4.x = ((int)(v1.x + ((float)(v2.y - v1.y) / (float)(v3.y - v1.y)) * (v3.x - v1.x)), v2.y);
+        v4.x = v3.x + ((v2.y - v3.y)/(v1.y - v3.y)) *(v1.x - v3.x) ;
         v4.y = v2.y;
         fillBottomTriangle(v1, v2, v4, image, color);
-        fillTopFlatTriangle(v2, v4, v3, image, color);
+        fillTopTriangle(v2, v4, v3, image, color);
     }
 }
-
-    /*if (v1.y==v2.y && v1.y==v3.y) return; // i dont care about degenerate triangles
-    if (v1.y>v2.y) std::swap(v1, v2);
-    if (v1.y>v3.y) std::swap(v1, v3);
-    if (v2.y>v3.y) std::swap(v2, v3);
-    int total_height = v3.y-v1.y;
-    for (int i=0; i<total_height; i++) {
-        bool second_half = i>v2.y-v1.y || v2.y==v1.y;
-        int segment_height = second_half ? v3.y-v2.y : v2.y-v1.y;
-        float alpha = (float)i/total_height;
-        float beta  = (float)(i-(second_half ? v2.y-v1.y : 0))/segment_height; // be careful: with above conditions no division by zero here
-        Vecteur2D A =               v1 + (v3-v1)*alpha;
-        Vecteur2D B = second_half ? v2 + (v3-v2)*beta : v1 + (v2-v1)*beta;
-        if (A.x>B.x) std::swap(A, B);
-        for (int j=A.x; j<=B.x; j++) {
-            image.set(j, v1.y+i, color); // attention, due to int casts t0.y+i != A.y
-        }
-    }*/
 
 int main(int argc, char** argv) {
 
@@ -161,7 +148,6 @@ int main(int argc, char** argv) {
             float y = (atof(listTableau[1].c_str())+1.)*height/2.;
             image.set(x,y,white);
         }*/
-
         for (int i = 0; i < edges.size(); ++i) {
 
             std::vector<std::string> listArc = split(edges[i], delimiter);
