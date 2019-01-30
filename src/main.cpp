@@ -41,10 +41,6 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color){
     }
 }
 
-void pixel(int x, int y, TGAImage &image, TGAColor color){
-    image.set(x, y, color);
-}
-
 std::vector<std::string> split(const std::string &chaine, char delimiteur){
     std::vector<std::string> elements;
     std::stringstream ss(chaine);
@@ -56,36 +52,8 @@ std::vector<std::string> split(const std::string &chaine, char delimiteur){
     return elements;
 }
 
-void fillBottomTriangle(Vecteur2D v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TGAColor color){
-
-    float invslope1 = (v2.x - v1.x) / (v2.y - v1.y);
-    float invslope2 = (v3.x - v1.x) / (v3.y - v1.y);
-
-    float curx1 = v1.x;
-    float curx2 = v1.x;
-
-    for (int scanlineY = v1.y; scanlineY <= v2.y; scanlineY++)
-    {
-        line(curx1, scanlineY, curx2, scanlineY, image, color );
-        curx1 += invslope1;
-        curx2 += invslope2;
-    }
-}
-
-void fillTopTriangle(Vecteur2D v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TGAColor color){
-
-    float invslope1 = (v3.x - v1.x) / (v3.y - v1.y);
-    float invslope2 = (v3.x - v2.x) / (v3.y - v2.y);
-
-    float curx1 = v3.x;
-    float curx2 = v3.x;
-
-    for (int scanlineY = v3.y; scanlineY > v2.y; scanlineY--)
-    {
-        line(curx1, scanlineY, curx2, scanlineY, image, color );
-        curx1 -= invslope1;
-        curx2 -= invslope2;
-    }
+void pixel(int x, int y, TGAImage &image, TGAColor color){ //colorier un seul pixel
+    image.set(x, y, color);
 }
 
 float cross_product(Vecteur2D v1, Vecteur2D v2){
@@ -93,33 +61,27 @@ float cross_product(Vecteur2D v1, Vecteur2D v2){
     return p;
 }
 
-void triangle(Vecteur2D  v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TGAColor color) {
-    if (v1.y > v2.y) std::swap(v1, v2);
-    if (v1.y > v3.y) std::swap(v1, v3);
-    if (v2.y > v3.y) std::swap(v2, v3);
-    //v3.y > v2.y > v1.y
-   /* line(v1.x, v1.y, v2.x, v2.y, image, color);
-    line(v2.x, v2.y, v3.x, v3.y, image, color);
-    line(v1.x, v1.y, v3.x, v3.y, image, color);*/
+float dot_product_2D(Vecteur2D v1, Vecteur2D v2){
+    float p = v1.x * v2.x + v1.y * v2.y;
+    return p;
+}
 
+float dot_product_3D(Vecteur3D v1, Vecteur3D v2){
+    float p = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+    return p;
+}
 
-    int maxX = std::max(v1.x, std::max(v2.x, v3.x));
-    int minX = std::min(v1.x, std::min(v2.x, v3.x));
-    int maxY = std::max(v1.y, std::max(v2.y, v3.y));
-    int minY = std::min(v1.y, std::min(v2.y, v3.y));
+void rasterisation(Vecteur2D v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TGAColor color){
+    int maxX = (int) std::max(v1.x, std::max(v2.x, v3.x));
+    int minX = (int) std::min(v1.x, std::min(v2.x, v3.x));
+    int maxY = (int) std::max(v1.y, std::max(v2.y, v3.y));
+    int minY = (int) std::min(v1.y, std::min(v2.y, v3.y));
 
-    Vecteur2D vs1;
-    vs1.x = v2.x - v1.x;
-    vs1.y = v2.y - v1.y;
-    Vecteur2D vs2;
-    vs2.x = v3.x - v1.x;
-    vs2.y = v3.y - v1.y;
-
+    Vecteur2D vs1{v2.x - v1.x, v2.y - v1.y};
+    Vecteur2D vs2{v3.x - v1.x, v3.y - v1.y};
     for (int x = minX; x <= maxX; x++) {
         for (int y = minY; y <= maxY; y++) {
-            Vecteur2D q;
-            q.x = x - v1.x;
-            q.y = y - v1.y;
+            Vecteur2D q{x - v1.x, y - v1.y};
 
             float s = cross_product(q, vs2) / cross_product(vs1, vs2);
             float t = cross_product(vs1, q) / cross_product(vs1, vs2);
@@ -128,20 +90,15 @@ void triangle(Vecteur2D  v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TGACol
                 pixel(x, y, image, color);
             }
         }
-
-
-        /*if (v2.y == v3.y) {
-            fillBottomTriangle(v1, v2, v3, image, color);
-        } else if (v1.y == v2.y) {
-            fillTopTriangle(v1, v2, v3, image, color);
-        } else {
-            Vecteur2D v4;
-            v4.x = v3.x + ((v2.y - v3.y) / (v1.y - v3.y)) * (v1.x - v3.x);
-            v4.y = v2.y;
-            fillBottomTriangle(v1, v2, v4, image, color);
-            fillTopTriangle(v2, v4, v3, image, color);
-        }*/
     }
+}
+
+void triangle(Vecteur2D  v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TGAColor color) {
+    if (v1.y > v2.y) std::swap(v1, v2);
+    if (v1.y > v3.y) std::swap(v1, v3);
+    if (v2.y > v3.y) std::swap(v2, v3);
+    //v3.y > v2.y > v1.y
+    rasterisation(v1, v2, v3, image, color);
 }
 
 int main(int argc, char** argv) {
@@ -207,6 +164,17 @@ int main(int argc, char** argv) {
             v3.x = (atof(coordonnees3[0].c_str()) + 1.) * width / 2.;
             v3.y = (atof(coordonnees3[1].c_str()) + 1.) * height / 2.;
             random = TGAColor(rand()%255, rand()%255, rand()%255, 255);
+
+            Vecteur3D lumiere{0, 0, -1};
+
+            /*for (int i = 0; i < edges.size(); ++i) {
+                Vecteur2D coord_ecran[3];
+                for (int j = 0; j < 3; ++j) {
+                    coord_ecran[j].x = (v1.x+1.)*width/2.;
+                    coord_ecran[j].y = (v1.y+1.)*height/2.;
+                }
+
+            }*/
             triangle(v1, v2, v3, image, random);
         }
     }

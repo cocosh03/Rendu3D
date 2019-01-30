@@ -12,4 +12,8 @@ struct Vecteur2D{
     float x, y;
 };
 
+struct Vecteur3D{
+    float x, y, z;
+};
+
 #endif //RENDU3D_GEOMETRY_H
