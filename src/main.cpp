@@ -41,8 +41,11 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color){
     }
 }
 
-std::vector<std::string> split(const std::string &chaine, char delimiteur)
-{
+void pixel(int x, int y, TGAImage &image, TGAColor color){
+    image.set(x, y, color);
+}
+
+std::vector<std::string> split(const std::string &chaine, char delimiteur){
     std::vector<std::string> elements;
     std::stringstream ss(chaine);
     std::string sousChaine;
@@ -82,28 +85,62 @@ void fillTopTriangle(Vecteur2D v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, 
         line(curx1, scanlineY, curx2, scanlineY, image, color );
         curx1 -= invslope1;
         curx2 -= invslope2;
+    }
 }
+
+float cross_product(Vecteur2D v1, Vecteur2D v2){
+    float p = v1.x * v2.y - v2.x * v1.y;
+    return p;
 }
 
 void triangle(Vecteur2D  v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TGAColor color) {
-    if (v1.y>v2.y) std::swap(v1, v2);
-    if (v1.y>v3.y) std::swap(v1, v3);
-    if (v2.y>v3.y) std::swap(v2, v3);
+    if (v1.y > v2.y) std::swap(v1, v2);
+    if (v1.y > v3.y) std::swap(v1, v3);
+    if (v2.y > v3.y) std::swap(v2, v3);
     //v3.y > v2.y > v1.y
-    line(v1.x, v1.y, v2.x, v2.y, image, color);
+   /* line(v1.x, v1.y, v2.x, v2.y, image, color);
     line(v2.x, v2.y, v3.x, v3.y, image, color);
-    line(v1.x, v1.y, v3.x, v3.y, image, color);
+    line(v1.x, v1.y, v3.x, v3.y, image, color);*/
 
-    if (v2.y == v3.y) {
-        fillBottomTriangle(v1, v2, v3, image, color);
-    } else if (v1.y == v2.y) {
-        fillTopTriangle(v1, v2, v3, image,color);
-    } else {
-        Vecteur2D v4;
-        v4.x = v3.x + ((v2.y - v3.y)/(v1.y - v3.y)) *(v1.x - v3.x) ;
-        v4.y = v2.y;
-        fillBottomTriangle(v1, v2, v4, image, color);
-        fillTopTriangle(v2, v4, v3, image, color);
+
+    int maxX = std::max(v1.x, std::max(v2.x, v3.x));
+    int minX = std::min(v1.x, std::min(v2.x, v3.x));
+    int maxY = std::max(v1.y, std::max(v2.y, v3.y));
+    int minY = std::min(v1.y, std::min(v2.y, v3.y));
+
+    Vecteur2D vs1;
+    vs1.x = v2.x - v1.x;
+    vs1.y = v2.y - v1.y;
+    Vecteur2D vs2;
+    vs2.x = v3.x - v1.x;
+    vs2.y = v3.y - v1.y;
+
+    for (int x = minX; x <= maxX; x++) {
+        for (int y = minY; y <= maxY; y++) {
+            Vecteur2D q;
+            q.x = x - v1.x;
+            q.y = y - v1.y;
+
+            float s = cross_product(q, vs2) / cross_product(vs1, vs2);
+            float t = cross_product(vs1, q) / cross_product(vs1, vs2);
+
+            if ((s >= 0) && (t >= 0) && (s + t <= 1)) { /* inside triangle */
+                pixel(x, y, image, color);
+            }
+        }
+
+
+        /*if (v2.y == v3.y) {
+            fillBottomTriangle(v1, v2, v3, image, color);
+        } else if (v1.y == v2.y) {
+            fillTopTriangle(v1, v2, v3, image, color);
+        } else {
+            Vecteur2D v4;
+            v4.x = v3.x + ((v2.y - v3.y) / (v1.y - v3.y)) * (v1.x - v3.x);
+            v4.y = v2.y;
+            fillBottomTriangle(v1, v2, v4, image, color);
+            fillTopTriangle(v2, v4, v3, image, color);
+        }*/
     }
 }
 
@@ -180,5 +217,4 @@ int main(int argc, char** argv) {
     image.flip_vertically(); // i want to have the origin at the left bottom corner of the image
     image.write_tga_file("output.tga");
     return 0;
-
 }
