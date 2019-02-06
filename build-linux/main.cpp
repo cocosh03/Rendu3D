@@ -56,7 +56,7 @@ void pixel(int x, int y, TGAImage &image, TGAColor color){ //colorier un seul pi
     image.set(x, y, color);
 }
 
-float cross_product(Vecteur2D v1, Vecteur2D v2){
+float cross_product2D(Vecteur2D v1, Vecteur2D v2){
     float p = v1.x * v2.y - v2.x * v1.y;
     return p;
 }
@@ -83,8 +83,8 @@ void rasterisation(Vecteur2D v1, Vecteur2D v2, Vecteur2D v3, TGAImage &image, TG
         for (int y = minY; y <= maxY; y++) {
             Vecteur2D q{x - v1.x, y - v1.y};
 
-            float s = cross_product(q, vs2) / cross_product(vs1, vs2);
-            float t = cross_product(vs1, q) / cross_product(vs1, vs2);
+            float s = cross_product2D(q, vs2) / cross_product2D(vs1, vs2);
+            float t = cross_product2D(vs1, q) / cross_product2D(vs1, vs2);
 
             if ((s >= 0) && (t >= 0) && (s + t <= 1)) { /* inside triangle */
                 pixel(x, y, image, color);
@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
             std::vector<std::string> listLignes = split(ligne, delimiter);
             if (listLignes.size() == 4) {
                 if (listLignes[0] == "v") {
-                    vertices.push_back(listLignes[1] + ' ' + listLignes[2]);
+                    vertices.push_back(listLignes[1] + ' ' + listLignes[2] + ' ' + listLignes[3]);
                 }
                 if (listLignes[0] == "f") {
                     char limiter = '/';
@@ -135,18 +135,13 @@ int main(int argc, char** argv) {
         }
         fichier.close();
 
-        //Pour dessiner les points
-        /*for (int i = 0; i < vertices.size(); ++i) {
-            std::vector<std::string> listTableau = split(vertices[i], delimiter);
-            float x = (atof(listTableau[0].c_str())+1.)*width/2.;
-            float y = (atof(listTableau[1].c_str())+1.)*height/2.;
-            image.set(x,y,white);
-        }*/
         for (int i = 0; i < edges.size(); ++i) {
 
             std::vector<std::string> listArc = split(edges[i], delimiter);
 
             Vecteur2D v1{}, v2{}, v3{};
+            Vecteur3DF v3D1{}, v3D2{}, v3D3{};
+
 
             int point1 = (atoi(listArc[0].c_str()) - 1.);
             int point2 = (atoi(listArc[1].c_str()) - 1.);
@@ -165,7 +160,39 @@ int main(int argc, char** argv) {
             v3.y = (atof(coordonnees3[1].c_str()) + 1.) * height / 2.;
             random = TGAColor(rand()%255, rand()%255, rand()%255, 255);
 
-            Vecteur3D lumiere{0, 0, -1};
+            int point3D1 = atoi(vertices[0].c_str()); //x
+            int point3D2 = atoi(vertices[1].c_str()); //y
+            int point3D3 = atoi(vertices[2].c_str()); //z
+
+            std::vector<std::string> coordonnees3D1 = split(vertices[point3D1], delimiter);
+            v3D1.x = atof(coordonnees3D1[0].c_str());
+            v3D1.y = atof(coordonnees3D1[1].c_str());
+            v3D1.z = atof(coordonnees3D1[2].c_str());
+
+            std::vector<std::string> coordonnees3D2 = split(vertices[point3D2], delimiter);
+            v3D2.x = atof(coordonnees3D1[0].c_str());
+            v3D2.y = atof(coordonnees3D1[1].c_str());
+            v3D2.z = atof(coordonnees3D1[2].c_str());
+
+            std::vector<std::string> coordonnees3D3 = split(vertices[point3D3], delimiter);
+            v3D3.x = atof(coordonnees3D1[0].c_str());
+            v3D3.y = atof(coordonnees3D1[1].c_str());
+            v3D3.z = atof(coordonnees3D1[2].c_str());
+
+            /*Vecteur3D v1v2 = {v3D2.x - v3D1.x, v3D2.y - v3D1.y, v3D2.z - v3D1.z};
+            Vecteur3D v1v3 = {v3D3.x - v3D1.x, v3D3.y - v3D1.y, v3D3.z - v3D1.z};*/
+
+            Vecteur3DF n = {(v3D2.y - v3D1.y) * (v3D3.z - v3D1.z) - (v3D2.z - v3D1.z) * (v3D3.y - v3D1.y),
+                           (v3D2.z - v3D1.z) * (v3D3.x - v3D1.x) - (v3D2.x - v3D1.x) * (v3D3.z - v3D1.z),
+                           (v3D2.x - v3D1.x) * (v3D3.y - v3D1.y) - (v3D2.y - v3D1.y) * (v3D3.x - v3D1.x)};
+            n.normalize();
+            Vecteur3DF lumiere{0, 0, -1};
+            float intensity = n.x*lumiere.x + n.y*lumiere.y +n.z*lumiere.z;
+	    if (intensity > 0){
+	      triangle(v1, v2, v3, image, random)TGAColor(intensity*255, intensity*255, intensity*255, 255));
+	    }
+
+
 
             /*for (int i = 0; i < edges.size(); ++i) {
                 Vecteur2D coord_ecran[3];
@@ -173,9 +200,7 @@ int main(int argc, char** argv) {
                     coord_ecran[j].x = (v1.x+1.)*width/2.;
                     coord_ecran[j].y = (v1.y+1.)*height/2.;
                 }
-
             }*/
-            triangle(v1, v2, v3, image, random);
         }
     }
     else{

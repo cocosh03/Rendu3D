@@ -188,6 +188,9 @@ int main(int argc, char** argv) {
             n.normalize();
             Vecteur3DF lumiere{0, 0, -1};
             float intensity = n.x*lumiere.x + n.y*lumiere.y +n.z*lumiere.z;
+	    if (intensity > 0){
+	      triangle(v1, v2, v3, image, random)TGAColor(intensity*255, intensity*255, intensity*255, 255));
+	    }
 
 
 
@@ -198,7 +201,6 @@ int main(int argc, char** argv) {
                     coord_ecran[j].y = (v1.y+1.)*height/2.;
                 }
             }*/
-            triangle(v1, v2, v3, image, random);
         }
     }
     else{
