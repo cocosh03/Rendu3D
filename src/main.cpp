@@ -140,8 +140,7 @@ int main(int argc, char** argv) {
             std::vector<std::string> listArc = split(edges[i], delimiter);
 
             Vecteur2D v1{}, v2{}, v3{};
-            Vecteur3DF v3D1{}, v3D2{}, v3D3{};
-
+            Vecteur3D v3D1{}, v3D2{}, v3D3{};
 
             int point1 = (atoi(listArc[0].c_str()) - 1.);
             int point2 = (atoi(listArc[1].c_str()) - 1.);
@@ -160,9 +159,9 @@ int main(int argc, char** argv) {
             v3.y = (atof(coordonnees3[1].c_str()) + 1.) * height / 2.;
             random = TGAColor(rand()%255, rand()%255, rand()%255, 255);
 
-            int point3D1 = atoi(vertices[0].c_str()); //x
-            int point3D2 = atoi(vertices[1].c_str()); //y
-            int point3D3 = atoi(vertices[2].c_str()); //z
+            int point3D1 = (atoi(listArc[0].c_str()) -1.); //x
+            int point3D2 = (atoi(listArc[1].c_str()) -1.); //y
+            int point3D3 = (atoi(listArc[2].c_str()) -1.); //z
 
             std::vector<std::string> coordonnees3D1 = split(vertices[point3D1], delimiter);
             v3D1.x = atof(coordonnees3D1[0].c_str());
@@ -170,35 +169,27 @@ int main(int argc, char** argv) {
             v3D1.z = atof(coordonnees3D1[2].c_str());
 
             std::vector<std::string> coordonnees3D2 = split(vertices[point3D2], delimiter);
-            v3D2.x = atof(coordonnees3D1[0].c_str());
-            v3D2.y = atof(coordonnees3D1[1].c_str());
-            v3D2.z = atof(coordonnees3D1[2].c_str());
+            v3D2.x = atof(coordonnees3D2[0].c_str());
+            v3D2.y = atof(coordonnees3D2[1].c_str());
+            v3D2.z = atof(coordonnees3D2[2].c_str());
 
             std::vector<std::string> coordonnees3D3 = split(vertices[point3D3], delimiter);
-            v3D3.x = atof(coordonnees3D1[0].c_str());
-            v3D3.y = atof(coordonnees3D1[1].c_str());
-            v3D3.z = atof(coordonnees3D1[2].c_str());
+            v3D3.x = atof(coordonnees3D3[0].c_str());
+            v3D3.y = atof(coordonnees3D3[1].c_str());
+            v3D3.z = atof(coordonnees3D3[2].c_str());
 
-            /*Vecteur3D v1v2 = {v3D2.x - v3D1.x, v3D2.y - v3D1.y, v3D2.z - v3D1.z};
-            Vecteur3D v1v3 = {v3D3.x - v3D1.x, v3D3.y - v3D1.y, v3D3.z - v3D1.z};*/
+            Vecteur3D v3v1 = {v3D3.x - v3D1.x, v3D3.y - v3D1.y, v3D3.z - v3D1.z};
+            Vecteur3D v2v1 = {v3D2.x - v3D1.x, v3D2.y - v3D1.y, v3D2.z - v3D1.z};
 
-            Vecteur3DF n = {(v3D2.y - v3D1.y) * (v3D3.z - v3D1.z) - (v3D2.z - v3D1.z) * (v3D3.y - v3D1.y),
-                           (v3D2.z - v3D1.z) * (v3D3.x - v3D1.x) - (v3D2.x - v3D1.x) * (v3D3.z - v3D1.z),
-                           (v3D2.x - v3D1.x) * (v3D3.y - v3D1.y) - (v3D2.y - v3D1.y) * (v3D3.x - v3D1.x)};
-            n.normalize();
-            Vecteur3DF lumiere{0, 0, -1};
+            Vecteur3D n = {v3v1.y*v2v1.z-v3v1.z*v2v1.y, v3v1.z*v2v1.x-v3v1.x*v2v1.z, v3v1.x*v2v1.y-v3v1.y*v2v1.x};
+            float norm = std::sqrt(n.x*n.x+n.y*n.y+n.z*n.z);
+
+            n = {n.x/norm, n.y/norm, n.z/norm};
+            Vecteur3D lumiere{0, 0, -1};
             float intensity = n.x*lumiere.x + n.y*lumiere.y +n.z*lumiere.z;
-
-
-
-            /*for (int i = 0; i < edges.size(); ++i) {
-                Vecteur2D coord_ecran[3];
-                for (int j = 0; j < 3; ++j) {
-                    coord_ecran[j].x = (v1.x+1.)*width/2.;
-                    coord_ecran[j].y = (v1.y+1.)*height/2.;
-                }
-            }*/
-            triangle(v1, v2, v3, image, random);
+            if (intensity > 0){
+            triangle(v1, v2, v3, image, TGAColor(intensity*255, intensity*255, intensity*255, 255));
+            }
         }
     }
     else{
