@@ -174,9 +174,9 @@ int main(int argc, char** argv) {
             v3D2.z = atof(coordonnees3D2[2].c_str());
 
             std::vector<std::string> coordonnees3D3 = split(vertices[point3D3], delimiter);
-            v3D3.x = atof(coordonnees3D1[0].c_str());
-            v3D3.y = atof(coordonnees3D1[1].c_str());
-            v3D3.z = atof(coordonnees3D1[2].c_str());
+            v3D3.x = atof(coordonnees3D3[0].c_str());
+            v3D3.y = atof(coordonnees3D3[1].c_str());
+            v3D3.z = atof(coordonnees3D3[2].c_str());
 
 
 
